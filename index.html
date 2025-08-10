@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="utf-8" />
+  <title>Loading prank</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body { background:#111; color:#fff; font-family:Arial, sans-serif; display:flex; align-items:center; justify-content:center; height:100vh; margin:0; }
+    .card { text-align:center; padding:30px; border-radius:12px; background:linear-gradient(180deg,#222,#111); box-shadow:0 10px 30px rgba(0,0,0,0.6); width:90%; max-width:420px; }
+    #loading { font-size:20px; margin-bottom:14px; opacity:1; transition:opacity .4s; }
+    #ip { font-weight:700; font-size:18px; margin-top:10px; color:#ffb86b; display:none; }
+    #fun { margin-top:14px; color:#9ad0ff; display:none; }
+    .small { font-size:12px; color:#aaa; margin-top:10px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div id="loading">Loading... ⏳</div>
+    <div id="ip"></div>
+    <div id="fun">Şaka! Sənə xəbər göndərildi 🤭</div>
+    <div class="small">(Bu zarafat üçün dostların razılığı var, yoxsa istifadə etmə.)</div>
+  </div>
+
+  <script>
+    // Səhifə açılanda serverə /collect çağırışı göndərilir.
+    async function runPrank() {
+      try {
+        // Kiçik gecikmə ilə "loading" effekti
+        await new Promise(r => setTimeout(r, 1200));
+
+        const resp = await fetch('/collect', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ path: location.pathname })
+        });
+
+        const data = await resp.json();
+
+        // loading gizlət, ip göstər
+        document.getElementById('loading').style.opacity = '0';
+        await new Promise(r => setTimeout(r, 350));
+        if (data && data.ip) {
+          document.getElementById('ip').textContent = 'Sənin IP ünvanın: ' + data.ip;
+          document.getElementById('ip').style.display = 'block';
+        } else {
+          document.getElementById('ip').textContent = 'IP tapılmadı.';
+          document.getElementById('ip').style.display = 'block';
+        }
+
+        // bir az effektdən sonra zarafat mesajı
+        setTimeout(() => {
+          document.getElementById('fun').style.display = 'block';
+          // optional: səs effekti
+          // const a = new Audio('boop.mp3'); a.play();
+        }, 800);
+      } catch (e) {
+        document.getElementById('loading').textContent = 'Xəta baş verdi';
+        console.error(e);
+      }
+    }
+
+    window.addEventListener('load', runPrank);
+  </script>
+</body>
+</html>
