@@ -11,8 +11,8 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN; // bot token
-const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;     // sənə gələn chat id
+const TELEGRAM_BOT_TOKEN = process.env.8408687620:AAEy2vYnaR8Be9kpbjoKpCTUAXMMHvvd4AE; // bot token
+const TELEGRAM_CHAT_ID = process.env.1689497109;     // sənə gələn chat id
 
 if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
   console.warn('XƏBƏRDARLIK: TELEGRAM_BOT_TOKEN və TELEGRAM_CHAT_ID ətraf mühit dəyişənləri təyin edilməyib.');
