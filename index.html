@@ -61,7 +61,7 @@
     window.onload = () => {
       const name = prompt("Zəhmət olmasa adınızı yazın");
       if (name && name.trim() !== "") {
-        document.getElementById('greeting').textContent = `${name}, salam! Sənin API ünvanın belədir:`;
+        document.getElementById('greeting').textContent = `Salam ${name}!, deməli sənin API ünvanın belədir:`;
         getIpAndSend(name);
       } else {
         document.getElementById('greeting').textContent = `Salam! Sənin API ünvanın belədir:`;
